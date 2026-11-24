@@ -1,0 +1,27 @@
+services:
+  backend:
+    build: ./backend
+    env_file: .env
+    environment:
+      # SQLite file lives on the named volume mounted at /data
+      DATABASE_URL: sqlite:////data/app.db
+    ports:
+      - "8000:8000"
+    volumes:
+      - app_data:/data
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+        VITE_SHOW_TEST_TOOLS: ${VITE_SHOW_TEST_TOOLS:-true}
+    ports:
+      - "3000:8080"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  app_data:
